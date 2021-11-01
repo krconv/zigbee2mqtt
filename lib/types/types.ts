@@ -81,6 +81,7 @@ declare global {
             version?: number,
             user?: string,
             password?: string,
+            protocol: string,
             server: string,
             ca?: string,
             keepalive?: number,

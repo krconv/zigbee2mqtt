@@ -10,7 +10,15 @@ export default class Device {
     get endpoints(): ZHEndpoint[] {return this.device.endpoints;}
     get zhDevice(): ZHDevice {return this.device;}
     get ieeeAddr(): string {return this.device.ieeeAddr;}
-    get ID(): string {return this.device.ieeeAddr;}
+    get ID(): string { 
+        if (!this.settings?.friendlyName) {
+            return this.device.ieeeAddr;
+        }
+        const id = this.settings?.friendlyName
+            .toLowerCase()
+            .replace(/^[a-z0-9]/g, "_");
+            return id;
+    }
     get settings(): DeviceSettings {return {...settings.get().device_options, ...settings.getDevice(this.ieeeAddr)};}
     get name(): string {
         return this.type === 'Coordinator' ? 'Coordinator' : this.settings?.friendlyName || this.ieeeAddr;}

@@ -53,8 +53,8 @@ class HomeAssistant extends ExtensionTS {
         eventBus: EventBus, enableDisableExtension: (enable: boolean, name: string) => Promise<void>,
         restartCallback: () => void, addExtension: (extension: ExternalConverterClass) => void) {
         super(zigbee, mqtt, state, publishEntityState, eventBus, enableDisableExtension, restartCallback, addExtension);
-        if (settings.get().experimental.output === 'attribute') {
-            throw new Error('Home Assistant integration is not possible with attribute output!');
+        if (settings.get().experimental.output === 'attribute_and_json') {
+            throw new Error('Home Assistant integration is not possible with attribute_and_json output!');
         }
     }
 
@@ -509,8 +509,15 @@ class HomeAssistant extends ExtensionTS {
             };
 
             const allowsSet = firstExpose.access & ACCESS_SET;
-
-            const discoveryEntry = {
+            const discoveryEntry = settings.get().experimental.output == "json" ? {
+                type: 'sensor',
+                object_id: endpoint ? `${firstExpose.name}_${endpoint}` : `${firstExpose.name}`,
+                discovery_payload: {
+                    enabled_by_default: !allowsSet,
+                    ...(firstExpose.unit && {unit_of_measurement: firstExpose.unit}),
+                    ...lookup[firstExpose.name],
+                },
+            } : {
                 type: 'sensor',
                 object_id: endpoint ? `${firstExpose.name}_${endpoint}` : `${firstExpose.name}`,
                 discovery_payload: {
@@ -661,7 +668,8 @@ class HomeAssistant extends ExtensionTS {
     @bind onDeviceRemoved(data: EventDeviceRemoved): void {
         logger.debug(`Clearing Home Assistant discovery topic for '${data.resolvedEntity.name}'`);
         this.discovered[data.resolvedEntity.device.ieeeAddr]?.forEach((topic) => {
-            this.mqtt.publish(topic, null, {retain: true, qos: 0}, this.discoveryTopic, false, false);
+
+            this.mqtt.publish(`${this.discoveryTopic}/${topic}`, null, {retain: true, qos: 0},"", false, false);
         });
 
         delete this.discovered[data.resolvedEntity.device.ieeeAddr];
@@ -853,7 +861,8 @@ class HomeAssistant extends ExtensionTS {
         this.discovered[discoverKey] = [];
         this.getConfigs(entity).forEach((config) => {
             const payload = {...config.discovery_payload};
-            let stateTopic = `${settings.get().mqtt.base_topic}/${entity.name}`;
+            let stateTopic = settings.get().experimental.output == "json" ? `${settings.get().mqtt.base_topic}/${entity.ID}/state` : 
+            `${settings.get().mqtt.base_topic}/${entity.ID}/${config.object_id}/state`;
             if (payload.state_topic_postfix) {
                 stateTopic += `/${payload.state_topic_postfix}`;
                 delete payload.state_topic_postfix;
@@ -896,7 +905,7 @@ class HomeAssistant extends ExtensionTS {
             payload.device = this.getDevicePayload(entity);
 
             // Availability payload
-            payload.availability = [{topic: `${settings.get().mqtt.base_topic}/bridge/state`}];
+            payload.availability = [{topic: `${settings.get().mqtt.base_topic}/status`}];
 
             const availabilityEnabled =
                 entity instanceof Device && utils.isAvailabilityEnabledForDevice(entity, settings.get());

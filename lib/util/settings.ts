@@ -29,6 +29,7 @@ const defaults: RecursivePartial<Settings> = {
          * https://github.com/Koenkk/zigbee2mqtt/pull/4948
          */
         force_disable_retain: false,
+        protocol: "mqtt://"
     },
     serial: {
         disable_led: false,

@@ -49,7 +49,7 @@ class Bridge extends ExtensionTS {
         class EventTransport extends Transport {
             log(info: {message: string, level: string}, callback: () => void): void {
                 const payload = stringify({message: info.message, level: info.level});
-                mqtt.publish(`bridge/logging`, payload, {}, settings.get().mqtt.base_topic, true);
+                // mqtt.publish(`bridge/logging`, payload, {}, settings.get().mqtt.base_topic, true);
                 callback();
             }
         }
@@ -66,7 +66,8 @@ class Bridge extends ExtensionTS {
 
         // Zigbee events
         const publishEvent = (type: string, data: KeyValue): Promise<void> =>
-            this.mqtt.publish('bridge/event', stringify({type, data}), {retain: false, qos: 0});
+            Promise.resolve();
+            // this.mqtt.publish('bridge/event', stringify({type, data}), {retain: false, qos: 0});
         this.eventBus.onDeviceJoined(this, (data) => {
             this.lastJoinedDeviceIeeeAddr = data.device.ieeeAddr;
             this.publishDevices();
@@ -111,11 +112,11 @@ class Bridge extends ExtensionTS {
 
             try {
                 const response = await this.requestLookup[key](message);
-                await this.mqtt.publish(`bridge/response/${match[1]}`, stringify(response));
+                // await this.mqtt.publish(`bridge/response/${match[1]}`, stringify(response));
             } catch (error) {
                 logger.error(`Request '${data.topic}' failed with error: '${error.message}'`);
                 const response = utils.getResponse(message, {}, error.message);
-                await this.mqtt.publish(`bridge/response/${match[1]}`, stringify(response));
+                // await this.mqtt.publish(`bridge/response/${match[1]}`, stringify(response));
             }
         }
     }
@@ -569,8 +570,8 @@ class Bridge extends ExtensionTS {
             config_schema: settings.schema,
         };
 
-        await this.mqtt.publish(
-            'bridge/info', stringify(payload), {retain: true, qos: 0}, settings.get().mqtt.base_topic, true);
+        // await this.mqtt.publish(
+        //     'bridge/info', stringify(payload), {retain: true, qos: 0}, settings.get().mqtt.base_topic, true);
     }
 
     async publishDevices(): Promise<void> {
@@ -631,8 +632,8 @@ class Bridge extends ExtensionTS {
             };
         });
 
-        await this.mqtt.publish('bridge/devices', stringify(devices),
-            {retain: true, qos: 0}, settings.get().mqtt.base_topic, true);
+        // await this.mqtt.publish('bridge/devices', stringify(devices),
+        //     {retain: true, qos: 0}, settings.get().mqtt.base_topic, true);
     }
 
     async publishGroups(): Promise<void> {
@@ -645,8 +646,8 @@ class Bridge extends ExtensionTS {
                 }),
             };
         });
-        await this.mqtt.publish(
-            'bridge/groups', stringify(groups), {retain: true, qos: 0}, settings.get().mqtt.base_topic, true);
+        // await this.mqtt.publish(
+        //     'bridge/groups', stringify(groups), {retain: true, qos: 0}, settings.get().mqtt.base_topic, true);
     }
 
     getDefinitionPayload(device: Device):

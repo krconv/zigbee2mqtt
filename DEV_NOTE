@@ -1,0 +1,7 @@
+The changes to this repo are attempting to make zigbee publish mqtt
+just like esphome does.
+
+To publish the changes:
+ 1. Build an image: docker build . --file docker/Dockerfile --tag krconv/zigbee2mqtt-amd64:1.21.2-1
+ 2. Push the image from the Docker Desktop app
+ 3. Use the custom repo that poinnts to the docker tag: https://github.com/krconv/hassio-zigbee2mqtt
