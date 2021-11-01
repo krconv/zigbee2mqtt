@@ -860,7 +860,7 @@ class HomeAssistant extends ExtensionTS {
 
         this.discovered[discoverKey] = [];
         this.getConfigs(entity).forEach((config) => {
-            if (config.object_id === "battery" || config.object_id == "voltage") {
+            if (config.object_id === "battery" || config.object_id === "voltage" || config.object_id === "linkquality") {
                 return;
             }
             const payload = {...config.discovery_payload};
