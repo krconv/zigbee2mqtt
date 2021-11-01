@@ -101,10 +101,10 @@ class ExternalExtension extends ExtensionTS {
 
     private async publishExtensions(): Promise<void> {
         const extensions = this.getListOfUserDefinedExtensions();
-        await this.mqtt.publish('bridge/extensions', stringify(extensions), {
-            retain: true,
-            qos: 0,
-        }, settings.get().mqtt.base_topic, true);
+        // await this.mqtt.publish('bridge/extensions', stringify(extensions), {
+        //     retain: true,
+        //     qos: 0,
+        // }, settings.get().mqtt.base_topic, true);
     }
 }
 

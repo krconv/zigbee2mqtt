@@ -860,6 +860,9 @@ class HomeAssistant extends ExtensionTS {
 
         this.discovered[discoverKey] = [];
         this.getConfigs(entity).forEach((config) => {
+            if (config.object_id === "battery" || config.object_id == "voltage") {
+                return;
+            }
             const payload = {...config.discovery_payload};
             let stateTopic = settings.get().experimental.output == "json" ? `${settings.get().mqtt.base_topic}/${entity.ID}/state` : 
             `${settings.get().mqtt.base_topic}/${entity.ID}_${config.object_id}/state`;
@@ -894,10 +897,10 @@ class HomeAssistant extends ExtensionTS {
             payload.name = entity.name;
             if (config.object_id.startsWith(config.type) && config.object_id.includes('_')) {
                 payload.name += `${nameSeparator}${config.object_id.split(/_(.+)/)[1]}`
-                .replace(/^[a-z]/, letter => letter.toUpperCase());
+                .replace(/./, letter => letter.toUpperCase());
             } else if (!config.object_id.startsWith(config.type)) {
                 payload.name += `${nameSeparator}${config.object_id.replace(/_/g, nameSeparator)}`
-                .replace(/^[a-z]/, letter => letter.toUpperCase());
+                .replace(/./, letter => letter.toUpperCase());
             }
 
             // Set unique_id
