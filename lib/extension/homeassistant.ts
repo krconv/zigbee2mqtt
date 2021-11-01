@@ -513,6 +513,7 @@ class HomeAssistant extends ExtensionTS {
                 type: 'sensor',
                 object_id: endpoint ? `${firstExpose.name}_${endpoint}` : `${firstExpose.name}`,
                 discovery_payload: {
+                    value_template: `{{ value_json.${firstExpose.property} }}`,
                     enabled_by_default: !allowsSet,
                     ...(firstExpose.unit && {unit_of_measurement: firstExpose.unit}),
                     ...lookup[firstExpose.name],
@@ -521,7 +522,6 @@ class HomeAssistant extends ExtensionTS {
                 type: 'sensor',
                 object_id: endpoint ? `${firstExpose.name}_${endpoint}` : `${firstExpose.name}`,
                 discovery_payload: {
-                    value_template: `{{ value_json.${firstExpose.property} }}`,
                     enabled_by_default: !allowsSet,
                     ...(firstExpose.unit && {unit_of_measurement: firstExpose.unit}),
                     ...lookup[firstExpose.name],
@@ -862,7 +862,7 @@ class HomeAssistant extends ExtensionTS {
         this.getConfigs(entity).forEach((config) => {
             const payload = {...config.discovery_payload};
             let stateTopic = settings.get().experimental.output == "json" ? `${settings.get().mqtt.base_topic}/${entity.ID}/state` : 
-            `${settings.get().mqtt.base_topic}/${entity.ID}/${config.object_id}/state`;
+            `${settings.get().mqtt.base_topic}/${entity.ID}_${config.object_id}/state`;
             if (payload.state_topic_postfix) {
                 stateTopic += `/${payload.state_topic_postfix}`;
                 delete payload.state_topic_postfix;
@@ -885,17 +885,19 @@ class HomeAssistant extends ExtensionTS {
                 payload.tilt_status_topic = stateTopic;
             }
 
-            if (this.entityAttributes) {
-                payload.json_attributes_topic = stateTopic;
-            }
+            // if (this.entityAttributes) {
+            //     payload.json_attributes_topic = stateTopic;
+            // }
 
             // Set (unique) name, separate by space if friendlyName contains space.
             const nameSeparator = entity.name.includes('_') ? '_' : ' ';
             payload.name = entity.name;
             if (config.object_id.startsWith(config.type) && config.object_id.includes('_')) {
-                payload.name += `${nameSeparator}${config.object_id.split(/_(.+)/)[1]}`;
+                payload.name += `${nameSeparator}${config.object_id.split(/_(.+)/)[1]}`
+                .replace(/^[a-z]/, letter => letter.toUpperCase());
             } else if (!config.object_id.startsWith(config.type)) {
-                payload.name += `${nameSeparator}${config.object_id.replace(/_/g, nameSeparator)}`;
+                payload.name += `${nameSeparator}${config.object_id.replace(/_/g, nameSeparator)}`
+                .replace(/^[a-z]/, letter => letter.toUpperCase());
             }
 
             // Set unique_id
