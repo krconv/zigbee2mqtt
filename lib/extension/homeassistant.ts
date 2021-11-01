@@ -1187,7 +1187,7 @@ class HomeAssistant extends ExtensionTS {
 
     private getDiscoveryTopic(config: DiscoveryEntry, entity: Device | Group): string {
         const key = entity instanceof Device ? entity.ieeeAddr : `${this.getEncodedBaseTopic()}_${entity.ID}`;
-        return `${config.type}/${key}/${config.object_id}/config`;
+        return `${entity.ID}_${config.object_id}/config`;
     }
 
     private async publishDeviceTriggerDiscover(device: Device, key: string, value: string, force=false): Promise<void> {

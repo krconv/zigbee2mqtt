@@ -16,7 +16,7 @@ export default class Device {
         }
         const id = this.settings?.friendlyName
             .toLowerCase()
-            .replace(/^[a-z0-9]/g, "_");
+            .replace(/ /g, "_");
             return id;
     }
     get settings(): DeviceSettings {return {...settings.get().device_options, ...settings.getDevice(this.ieeeAddr)};}
