@@ -896,11 +896,11 @@ class HomeAssistant extends ExtensionTS {
             const nameSeparator = entity.name.includes('_') ? '_' : ' ';
             payload.name = entity.name;
             if (config.object_id.startsWith(config.type) && config.object_id.includes('_')) {
-                payload.name += `${nameSeparator}${config.object_id.split(/_(.+)/)[1]}`
-                .replace(/./, letter => letter.toUpperCase());
+                payload.name += `${nameSeparator}${config.object_id.split(/_(.+)/)[1]
+                .replace(/./, letter => letter.toUpperCase())}`;
             } else if (!config.object_id.startsWith(config.type)) {
-                payload.name += `${nameSeparator}${config.object_id.replace(/_/g, nameSeparator)}`
-                .replace(/./, letter => letter.toUpperCase());
+                payload.name += `${nameSeparator}${config.object_id.replace(/_/g, nameSeparator)
+                .replace(/./, letter => letter.toUpperCase())}`;
             }
 
             // Set unique_id
