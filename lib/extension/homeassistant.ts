@@ -864,8 +864,8 @@ class HomeAssistant extends ExtensionTS {
                 return;
             }
             const payload = {...config.discovery_payload};
-            let stateTopic = settings.get().experimental.output == "json" ? `${settings.get().mqtt.base_topic}/${entity.ID}/state` : 
-            `${settings.get().mqtt.base_topic}/${entity.ID}_${config.object_id}/state`;
+            let stateTopic = settings.get().experimental.output == "json" ? `${settings.get().mqtt.base_topic}/${entity.ID}/state` :
+            `${settings.get().mqtt.base_topic}/sensor/${entity.ID}_${config.object_id}/state`;
             if (payload.state_topic_postfix) {
                 stateTopic += `/${payload.state_topic_postfix}`;
                 delete payload.state_topic_postfix;
